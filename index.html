@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Catálogo</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="stylesheet" href="index.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header>
+            <div class="header-top">
+                <h1><i class="fas fa-book-open"></i> Catálogo</h1>
+            </div>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Buscar producto, materia activa, lote...">
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <div id="productosContainer"></div>
+            <div id="noResults" class="hidden">
+                <i class="fas fa-box-open"></i>
+                <p>No se encontraron productos.</p>
+            </div>
+        </main>
+
+        <!-- FAB (Add Button) -->
+        <button id="addBtn" class="fab"><i class="fas fa-plus"></i></button>
+        
+        <!-- Modal para Detalle -->
+        <div id="productModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-top-actions">
+                    <button class="icon-btn edit-btn" id="editBtn" title="Editar Producto">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="icon-btn close-btn" id="closeModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="modalBody">
+                    <!-- Dynamic content will go here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para Formulario (Añadir/Editar) -->
+        <div id="formModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-top-actions">
+                    <button class="icon-btn close-btn" id="closeFormModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="formBody">
+                    <h2 class="detail-title" style="margin-bottom: 20px;" id="formTitle">Añadir Producto</h2>
+                    <form id="productForm">
+                        <input type="hidden" id="formProductId">
+                        
+                        <div class="form-group">
+                            <label>Categoría</label>
+                            <select id="formCategoria" required>
+                                <option value="INSECTICIDAS">Insecticida</option>
+                                <option value="RODENTICIDAS">Rodenticida</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Nombre Comercial *</label>
+                            <input type="text" id="formNombre" required>
+                        </div>
+
+                        <!-- Insecticidas fields -->
+                        <div id="fieldsInsecticida">
+                            <div class="form-group">
+                                <label>Materia Activa</label>
+                                <input type="text" id="formMateriaActiva">
+                            </div>
+                            <div class="form-group">
+                                <label>Plaga Principal</label>
+                                <input type="text" id="formPlaga">
+                            </div>
+                        </div>
+
+                        <!-- Rodenticidas fields -->
+                        <div id="fieldsRodenticida" class="hidden">
+                            <div class="form-group">
+                                <label>Sustancia Activa</label>
+                                <input type="text" id="formSustanciaActiva">
+                            </div>
+                            <div class="form-group">
+                                <label>Formulación</label>
+                                <input type="text" id="formFormulacion">
+                            </div>
+                        </div>
+
+                        <!-- Common fields -->
+                        <div class="form-group">
+                            <label>Nº Registro</label>
+                            <input type="text" id="formRegistro">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Lote</label>
+                            <input type="text" id="formLote" placeholder="Ej: L-12345">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" id="btnDelete" class="btn-danger hidden"><i class="fas fa-trash"></i></button>
+                            <button type="submit" class="btn-primary">Guardar Producto</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>

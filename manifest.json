@@ -1,0 +1,17 @@
+{
+  "name": "Catálogo de Productos",
+  "short_name": "Catálogo",
+  "description": "Catálogo de Insecticidas y Rodenticidas",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
