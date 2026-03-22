@@ -39,6 +39,9 @@
         <div id="productModal" class="modal">
             <div class="modal-content">
                 <div class="modal-top-actions">
+                    <button class="icon-btn" id="detailDeleteBtn" title="Eliminar Producto" style="color: var(--danger);">
+                        <i class="fas fa-trash"></i>
+                    </button>
                     <button class="icon-btn edit-btn" id="editBtn" title="Editar Producto">
                         <i class="fas fa-edit"></i>
                     </button>
@@ -84,10 +87,6 @@
                                 <label>Materia Activa</label>
                                 <input type="text" id="formMateriaActiva">
                             </div>
-                            <div class="form-group">
-                                <label>Plaga Principal</label>
-                                <input type="text" id="formPlaga">
-                            </div>
                         </div>
 
                         <!-- Rodenticidas fields -->
@@ -104,6 +103,11 @@
 
                         <!-- Common fields -->
                         <div class="form-group">
+                            <label>Plaga Diana (Principal)</label>
+                            <input type="text" id="formPlaga" placeholder="Ej: Cucarachas, Roedores">
+                        </div>
+
+                        <div class="form-group">
                             <label>Nº Registro</label>
                             <input type="text" id="formRegistro">
                         </div>
@@ -111,6 +115,16 @@
                         <div class="form-group">
                             <label>Lote</label>
                             <input type="text" id="formLote" placeholder="Ej: L-12345">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Plazo de Seguridad</label>
+                            <input type="text" id="formPlazoSeguridad" placeholder="Ej: 15 días, NA">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Método de Aplicación</label>
+                            <input type="text" id="formMetodoAplicacion" placeholder="Ej: Pulverización, Cebo">
                         </div>
 
                         <div class="form-actions">

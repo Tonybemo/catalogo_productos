@@ -222,6 +222,9 @@ const defaultProductos = [
   const fieldsRodenticida = document.getElementById('fieldsRodenticida');
   const btnDelete = document.getElementById('btnDelete');
   const formTitle = document.getElementById('formTitle');
+  const detailDeleteBtn = document.getElementById('detailDeleteBtn');
+  const formPlazoSeguridad = document.getElementById('formPlazoSeguridad');
+  const formMetodoAplicacion = document.getElementById('formMetodoAplicacion');
   
   let currentProductId = null;
   
@@ -297,6 +300,13 @@ const defaultProductos = [
          secProp += ` • Lote: ${product.lote}`;
       }
   
+      let plazoBadgeHTML = '';
+      if (product.plazoSeguridad && product.plazoSeguridad.trim().toUpperCase() !== 'NA' && product.plazoSeguridad.trim() !== '') {
+          plazoBadgeHTML = `<div style="color: var(--danger); font-size: 0.75rem; font-weight: 600; margin-top: 5px;"><i class="fas fa-exclamation-triangle"></i> Plazo seg.: ${product.plazoSeguridad}</div>`;
+      } else {
+          plazoBadgeHTML = `<div style="color: var(--insecticida-color); font-size: 0.75rem; font-weight: 600; margin-top: 5px;"><i class="fas fa-check-circle"></i> Plazo seg.: No aplica</div>`;
+      }
+
       card.innerHTML = `
           <div class="card-image-thumbnail">
               ${imgSrc ? `<img src="${imgSrc}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">` : '<i class="fas fa-camera"></i>'}
@@ -304,6 +314,7 @@ const defaultProductos = [
           <div class="card-info">
               <h3 class="product-name">${product.nombre}</h3>
               <p class="product-subtitle">${secProp}</p>
+              ${plazoBadgeHTML}
           </div>
           <div class="category-badge ${product.categoria === 'INSECTICIDAS' ? 'badge-insecticidas' : 'badge-rodenticidas'}">
               ${product.categoria.substring(0,3)}
@@ -335,7 +346,6 @@ const defaultProductos = [
           propsHTML = `
               <div class="prop-item"><div class="prop-label">Materia Activa</div><div class="prop-value">${product.materiaActiva || '-'}</div></div>
               <div class="prop-item"><div class="prop-label">Nº Registro</div><div class="prop-value">${product.registro || '-'}</div></div>
-              <div class="prop-item"><div class="prop-label">Plaga Principal</div><div class="prop-value">${product.plaga || '-'}</div></div>
           `;
       } else {
           propsHTML = `
@@ -345,11 +355,21 @@ const defaultProductos = [
           `;
       }
   
-      if (product.lote && product.lote.trim() !== '') {
-          propsHTML += `
-              <div class="prop-item" style="border-left-color: var(--rodenticida-color);"><div class="prop-label">Lote</div><div class="prop-value">${product.lote}</div></div>
-          `;
+      if (product.plaga && product.plaga.trim() !== '') {
+          propsHTML += `<div class="prop-item"><div class="prop-label">Plaga Diana</div><div class="prop-value">${product.plaga}</div></div>`;
       }
+      
+      if (product.metodoAplicacion && product.metodoAplicacion.trim() !== '') {
+          propsHTML += `<div class="prop-item"><div class="prop-label">Método de Aplicación</div><div class="prop-value">${product.metodoAplicacion}</div></div>`;
+      }
+      
+      if (product.lote && product.lote.trim() !== '') {
+          propsHTML += `<div class="prop-item"><div class="prop-label">Lote</div><div class="prop-value">${product.lote}</div></div>`;
+      }
+      
+      let plazoStr = product.plazoSeguridad && product.plazoSeguridad.trim() !== '' ? product.plazoSeguridad : 'No aplica';
+      let plazoColor = (plazoStr.toUpperCase() !== 'NA' && plazoStr !== 'No aplica') ? 'var(--danger)' : 'var(--insecticida-color)';
+      propsHTML += `<div class="prop-item" style="border-left-color: ${plazoColor};"><div class="prop-label">Plazo de Seguridad</div><div class="prop-value" style="color: ${plazoColor}; font-weight: 600;">${plazoStr}</div></div>`;
       
       const badgeCls = product.categoria === 'INSECTICIDAS' ? 'badge-insecticidas' : 'badge-rodenticidas';
   
@@ -387,6 +407,16 @@ const defaultProductos = [
       setTimeout(() => {
           renderProducts(productos); // Refresh to show thumbnail changes
       }, 300);
+  });
+  
+  detailDeleteBtn.addEventListener('click', () => {
+      if(confirm('¿Seguro que quieres eliminar este producto?')) {
+          productos = productos.filter(p => p.id !== currentProductId);
+          localStorage.removeItem(`img_${currentProductId}`);
+          saveProducts();
+          renderProducts(productos);
+          modal.classList.remove('show');
+      }
   });
   
   // Resize and save image to localStorage using Canvas
@@ -481,10 +511,12 @@ const defaultProductos = [
       document.getElementById('formNombre').value = p.nombre || '';
       document.getElementById('formRegistro').value = p.registro || '';
       document.getElementById('formLote').value = p.lote || '';
+      document.getElementById('formPlazoSeguridad').value = p.plazoSeguridad || '';
+      document.getElementById('formMetodoAplicacion').value = p.metodoAplicacion || '';
+      document.getElementById('formPlaga').value = p.plaga || '';
       
       if (p.categoria === 'INSECTICIDAS') {
           document.getElementById('formMateriaActiva').value = p.materiaActiva || '';
-          document.getElementById('formPlaga').value = p.plaga || '';
       } else {
           document.getElementById('formSustanciaActiva').value = p.sustanciaActiva || '';
           document.getElementById('formFormulacion').value = p.formulacion || '';
@@ -511,12 +543,14 @@ const defaultProductos = [
           categoria: cat,
           nombre: nombre,
           registro: document.getElementById('formRegistro').value,
-          lote: document.getElementById('formLote').value
+          lote: document.getElementById('formLote').value,
+          plazoSeguridad: document.getElementById('formPlazoSeguridad').value,
+          metodoAplicacion: document.getElementById('formMetodoAplicacion').value,
+          plaga: document.getElementById('formPlaga').value
       };
       
       if (cat === 'INSECTICIDAS') {
           newProduct.materiaActiva = document.getElementById('formMateriaActiva').value;
-          newProduct.plaga = document.getElementById('formPlaga').value;
       } else {
           newProduct.sustanciaActiva = document.getElementById('formSustanciaActiva').value;
           newProduct.formulacion = document.getElementById('formFormulacion').value;
