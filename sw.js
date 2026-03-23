@@ -1,4 +1,4 @@
-const CACHE_NAME = 'catalogo-v2';
+const CACHE_NAME = 'catalogo-v4';
 const ASSETS = [
     './',
     './index.html',
@@ -31,6 +31,12 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+    // No cachear peticiones a la API de Supabase para tener siempre datos frescos
+    if (e.request.url.includes('supabase.co')) {
+        e.respondWith(fetch(e.request));
+        return;
+    }
+
     e.respondWith(
         caches.match(e.request)
         .then(response => {
