@@ -414,17 +414,17 @@ const defaultProductos = [
               <h2 class="detail-title">${product.nombre}</h2>
           </div>
           
-          <div class="detail-image-container" id="imageContainer">
-              ${imgSrc 
-                  ? `<img src="${imgSrc}" class="detail-image" id="productImage">` 
-                  : `<div class="image-placeholder"><i class="fas fa-image"></i><span>Sin imagen</span></div>`
-              }
-              <div class="attach-btn-container">
-                  <label for="imageUpload" class="attach-btn">
-                      <i class="fas fa-camera"></i> ${imgSrc ? 'Cambiar' : 'Adjuntar'} Foto
-                  </label>
-                  <input type="file" id="imageUpload" accept="image/*">
+          <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; margin-top: 10px;">
+              <div id="imageContainer" style="width: 140px; height: 140px; border-radius: 20px; background: rgba(255, 255, 255, 0.05); border: 2px dashed var(--card-border); display: flex; justify-content: center; align-items: center; overflow: hidden; margin-bottom: 15px;">
+                  ${imgSrc 
+                      ? `<img src="${imgSrc}" style="width: 100%; height: 100%; object-fit: cover;" id="productImage">` 
+                      : `<div style="color: var(--text-secondary); display: flex; flex-direction: column; align-items: center;"><i class="fas fa-image" style="font-size: 2.5rem; opacity: 0.5;"></i></div>`
+                  }
               </div>
+              <label for="imageUpload" class="attach-btn" id="attachBtnLabel">
+                  <i class="fas fa-camera"></i> ${imgSrc ? 'Cambiar Foto' : 'Añadir Foto'}
+              </label>
+              <input type="file" id="imageUpload" accept="image/*" style="display: none;">
           </div>
           
           <div class="prop-list">
@@ -500,16 +500,10 @@ const defaultProductos = [
                   
                   // Update UI
                   const container = document.getElementById('imageContainer');
-                  container.innerHTML = `
-                      <img src="${dataUrl}" class="detail-image" id="productImage">
-                      <div class="attach-btn-container">
-                          <label for="imageUpload" class="attach-btn">
-                              <i class="fas fa-camera"></i> Cambiar Foto
-                          </label>
-                          <input type="file" id="imageUpload" accept="image/*">
-                      </div>
-                  `;
-                  document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
+                  container.innerHTML = `<img src="${dataUrl}" style="width: 100%; height: 100%; object-fit: cover;" id="productImage">`;
+                  
+                  const lbl = document.getElementById('attachBtnLabel');
+                  if(lbl) lbl.innerHTML = '<i class="fas fa-camera"></i> Cambiar Foto';
               } catch (err) {
                   alert("Error al procesar la imagen.");
               }
