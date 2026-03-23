@@ -73,6 +73,8 @@
                             <select id="formCategoria" required>
                                 <option value="INSECTICIDAS">Insecticida</option>
                                 <option value="RODENTICIDAS">Rodenticida</option>
+                                <option value="DESINFECTANTES">Desinfectante</option>
+                                <option value="OTROS">Otro / Biocida</option>
                             </select>
                         </div>
                         
@@ -81,10 +83,10 @@
                             <input type="text" id="formNombre" required>
                         </div>
 
-                        <!-- Insecticidas fields -->
+                        <!-- Insecticidas/Desinfectantes/Otros fields -->
                         <div id="fieldsInsecticida">
                             <div class="form-group">
-                                <label>Materia Activa</label>
+                                <label>Materia Activa / Composición</label>
                                 <input type="text" id="formMateriaActiva">
                             </div>
                         </div>
@@ -137,6 +139,7 @@
         </div>
     </div>
     
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="app.js"></script>
 </body>
 </html>

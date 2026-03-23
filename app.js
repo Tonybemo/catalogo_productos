@@ -202,8 +202,12 @@ const defaultProductos = [
     }
   ];
   
-  // Storage initialization
-  let productos = JSON.parse(localStorage.getItem('productos')) || defaultProductos;
+  // Supabase initialization
+  const supabaseUrl = 'https://cuhbqppdndzvxvlhlszn.supabase.co';
+  const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1aGJxcHBkbmR6dnh2bGhsc3puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5MzE4MTIsImV4cCI6MjA4NzUwNzgxMn0.OjYCEu7btiWjA9gvm3lB5bpfMJYBWx3J5LJsO22RrJk';
+  const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+  let productos = [];
   
   // Elementos DOM
   const container = document.getElementById('productosContainer');
@@ -229,9 +233,8 @@ const defaultProductos = [
   let currentProductId = null;
   
   // Initial Render
-  document.addEventListener('DOMContentLoaded', () => {
-      saveProducts(); // Save defaults if empty
-      renderProducts(productos);
+  document.addEventListener('DOMContentLoaded', async () => {
+      await fetchProducts();
       
       // Register Service Worker
       if ('serviceWorker' in navigator) {
@@ -241,8 +244,30 @@ const defaultProductos = [
       }
   });
   
+  async function fetchProducts() {
+      try {
+          const { data, error } = await supabaseClient.from('productos').select('*');
+          if (error) {
+              console.error('Error fetched products:', error);
+              return;
+          }
+          
+          if (!data || data.length === 0) {
+              productos = defaultProductos;
+          } else {
+              productos = data;
+          }
+          
+          renderProducts(productos);
+      } catch (err) {
+          console.error("Error connecting to Supabase:", err);
+          productos = defaultProductos;
+          renderProducts(productos);
+      }
+  }
+
   function saveProducts() {
-      localStorage.setItem('productos', JSON.stringify(productos));
+      // localStorage.setItem('productos', JSON.stringify(productos));
   }
   
   // Renderizar Lista
@@ -258,6 +283,8 @@ const defaultProductos = [
       
       const insecticidas = productsToRender.filter(p => p.categoria === 'INSECTICIDAS');
       const rodenticidas = productsToRender.filter(p => p.categoria === 'RODENTICIDAS');
+      const desinfectantes = productsToRender.filter(p => p.categoria === 'DESINFECTANTES');
+      const otros = productsToRender.filter(p => p.categoria === 'OTROS');
       
       if (insecticidas.length > 0) {
           container.appendChild(createCategorySection('INSECTICIDAS', insecticidas, 'fas fa-bug', 'insecticidas-title'));
@@ -265,6 +292,14 @@ const defaultProductos = [
       
       if (rodenticidas.length > 0) {
           container.appendChild(createCategorySection('RODENTICIDAS', rodenticidas, 'fas fa-mouse', 'rodenticidas-title'));
+      }
+
+      if (desinfectantes.length > 0) {
+          container.appendChild(createCategorySection('DESINFECTANTES', desinfectantes, 'fas fa-shield-virus', 'desinfectantes-title'));
+      }
+
+      if (otros.length > 0) {
+          container.appendChild(createCategorySection('OTROS / BIOCIDAS', otros, 'fas fa-vial', 'otros-title'));
       }
   }
   
@@ -293,9 +328,9 @@ const defaultProductos = [
       card.className = 'product-card';
       card.onclick = () => openModal(product);
       
-      const imgSrc = localStorage.getItem(`img_${product.id}`);
+      const imgSrc = product.imagen;
       
-      let secProp = product.categoria === 'INSECTICIDAS' ? product.materiaActiva : product.sustanciaActiva;
+      let secProp = product.categoria === 'RODENTICIDAS' ? product.sustanciaActiva : product.materiaActiva;
       if (product.lote && product.lote.trim() !== '') {
          secProp += ` • Lote: ${product.lote}`;
       }
@@ -316,7 +351,7 @@ const defaultProductos = [
               <p class="product-subtitle">${secProp}</p>
               ${plazoBadgeHTML}
           </div>
-          <div class="category-badge ${product.categoria === 'INSECTICIDAS' ? 'badge-insecticidas' : 'badge-rodenticidas'}">
+          <div class="category-badge ${product.categoria === 'INSECTICIDAS' ? 'badge-insecticidas' : product.categoria === 'RODENTICIDAS' ? 'badge-rodenticidas' : product.categoria === 'DESINFECTANTES' ? 'badge-desinfectantes' : 'badge-otros'}">
               ${product.categoria.substring(0,3)}
           </div>
       `;
@@ -339,19 +374,19 @@ const defaultProductos = [
   // Detail Modal
   function openModal(product) {
       currentProductId = product.id;
-      const imgSrc = localStorage.getItem(`img_${product.id}`);
+      const imgSrc = product.imagen;
       
       let propsHTML = '';
-      if (product.categoria === 'INSECTICIDAS') {
-          propsHTML = `
-              <div class="prop-item"><div class="prop-label">Materia Activa</div><div class="prop-value">${product.materiaActiva || '-'}</div></div>
-              <div class="prop-item"><div class="prop-label">Nº Registro</div><div class="prop-value">${product.registro || '-'}</div></div>
-          `;
-      } else {
+      if (product.categoria === 'RODENTICIDAS') {
           propsHTML = `
               <div class="prop-item"><div class="prop-label">Sustancia Activa</div><div class="prop-value">${product.sustanciaActiva || '-'}</div></div>
               <div class="prop-item"><div class="prop-label">Nº Registro</div><div class="prop-value">${product.registro || '-'}</div></div>
               <div class="prop-item"><div class="prop-label">Formulación</div><div class="prop-value">${product.formulacion || '-'}</div></div>
+          `;
+      } else {
+          propsHTML = `
+              <div class="prop-item"><div class="prop-label">Materia Activa / Composición</div><div class="prop-value">${product.materiaActiva || '-'}</div></div>
+              <div class="prop-item"><div class="prop-label">Nº Registro</div><div class="prop-value">${product.registro || '-'}</div></div>
           `;
       }
   
@@ -371,7 +406,7 @@ const defaultProductos = [
       let plazoColor = (plazoStr.toUpperCase() !== 'NA' && plazoStr !== 'No aplica') ? 'var(--danger)' : 'var(--insecticida-color)';
       propsHTML += `<div class="prop-item" style="border-left-color: ${plazoColor};"><div class="prop-label">Plazo de Seguridad</div><div class="prop-value" style="color: ${plazoColor}; font-weight: 600;">${plazoStr}</div></div>`;
       
-      const badgeCls = product.categoria === 'INSECTICIDAS' ? 'badge-insecticidas' : 'badge-rodenticidas';
+      const badgeCls = product.categoria === 'INSECTICIDAS' ? 'badge-insecticidas' : product.categoria === 'RODENTICIDAS' ? 'badge-rodenticidas' : product.categoria === 'DESINFECTANTES' ? 'badge-desinfectantes' : 'badge-otros';
   
       modalBody.innerHTML = `
           <div class="detail-header">
@@ -409,12 +444,12 @@ const defaultProductos = [
       }, 300);
   });
   
-  detailDeleteBtn.addEventListener('click', () => {
+  detailDeleteBtn.addEventListener('click', async () => {
       if(confirm('¿Seguro que quieres eliminar este producto?')) {
-          productos = productos.filter(p => p.id !== currentProductId);
-          localStorage.removeItem(`img_${currentProductId}`);
-          saveProducts();
-          renderProducts(productos);
+          const { error } = await supabaseClient.from('productos').delete().eq('id', currentProductId);
+          if (error) console.error('Error deleting:', error);
+          
+          await fetchProducts();
           modal.classList.remove('show');
       }
   });
@@ -455,7 +490,13 @@ const defaultProductos = [
               const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
               
               try {
-                  localStorage.setItem(`img_${currentProductId}`, dataUrl);
+                  const p = productos.find(x => x.id === currentProductId);
+                  if (p) {
+                      p.imagen = dataUrl;
+                      supabaseClient.from('productos').update({ imagen: dataUrl }).eq('id', currentProductId).then(({error}) => {
+                          if(error) console.error('Error guardando imagen en DB:', error);
+                      });
+                  }
                   
                   // Update UI
                   const container = document.getElementById('imageContainer');
@@ -470,7 +511,7 @@ const defaultProductos = [
                   `;
                   document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
               } catch (err) {
-                  alert("Error al guardar la imagen. Tal vez se llenó la memoria del navegador.");
+                  alert("Error al procesar la imagen.");
               }
           };
           img.src = event.target.result;
@@ -481,12 +522,12 @@ const defaultProductos = [
   // --- FORM LOGIC (ADD / EDIT) ---
   
   formCategoria.addEventListener('change', (e) => {
-      if (e.target.value === 'INSECTICIDAS') {
-          fieldsInsecticida.classList.remove('hidden');
-          fieldsRodenticida.classList.add('hidden');
-      } else {
+      if (e.target.value === 'RODENTICIDAS') {
           fieldsInsecticida.classList.add('hidden');
           fieldsRodenticida.classList.remove('hidden');
+      } else {
+          fieldsInsecticida.classList.remove('hidden');
+          fieldsRodenticida.classList.add('hidden');
       }
   });
   
@@ -515,11 +556,11 @@ const defaultProductos = [
       document.getElementById('formMetodoAplicacion').value = p.metodoAplicacion || '';
       document.getElementById('formPlaga').value = p.plaga || '';
       
-      if (p.categoria === 'INSECTICIDAS') {
-          document.getElementById('formMateriaActiva').value = p.materiaActiva || '';
-      } else {
+      if (p.categoria === 'RODENTICIDAS') {
           document.getElementById('formSustanciaActiva').value = p.sustanciaActiva || '';
           document.getElementById('formFormulacion').value = p.formulacion || '';
+      } else {
+          document.getElementById('formMateriaActiva').value = p.materiaActiva || '';
       }
       
       btnDelete.classList.remove('hidden');
@@ -531,7 +572,7 @@ const defaultProductos = [
       formModal.classList.remove('show');
   });
   
-  productForm.addEventListener('submit', (e) => {
+  productForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
       const isEdit = document.getElementById('formProductId').value !== '';
@@ -549,33 +590,41 @@ const defaultProductos = [
           plaga: document.getElementById('formPlaga').value
       };
       
-      if (cat === 'INSECTICIDAS') {
-          newProduct.materiaActiva = document.getElementById('formMateriaActiva').value;
-      } else {
+      if (cat === 'RODENTICIDAS') {
           newProduct.sustanciaActiva = document.getElementById('formSustanciaActiva').value;
           newProduct.formulacion = document.getElementById('formFormulacion').value;
+      } else {
+          newProduct.materiaActiva = document.getElementById('formMateriaActiva').value;
       }
       
       if (isEdit) {
-          const index = productos.findIndex(p => p.id === newProduct.id);
-          if (index !== -1) productos[index] = newProduct;
-      } else {
-          productos.push(newProduct);
+          const oldProduct = productos.find(p => p.id === newProduct.id);
+          if (oldProduct && oldProduct.imagen) {
+              newProduct.imagen = oldProduct.imagen;
+          }
+      }
+
+      // Upsert to Supabase
+      const { error } = await supabaseClient.from('productos').upsert([newProduct]);
+      if (error) {
+          console.error("Error saving:", error);
+          alert("Error guardando el producto en DB");
       }
       
-      saveProducts();
-      renderProducts(productos);
+      await fetchProducts();
+      
       searchInput.value = ''; // clear search when adding
       formModal.classList.remove('show');
   });
   
-  btnDelete.addEventListener('click', () => {
+  btnDelete.addEventListener('click', async () => {
       if(confirm('¿Seguro que quieres eliminar este producto?')) {
           const id = document.getElementById('formProductId').value;
-          productos = productos.filter(p => p.id !== id);
-          localStorage.removeItem(`img_${id}`); // cleanup image
-          saveProducts();
-          renderProducts(productos);
+          
+          const { error } = await supabaseClient.from('productos').delete().eq('id', id);
+          if (error) console.error("Error deleting:", error);
+
+          await fetchProducts();
           formModal.classList.remove('show');
       }
   });

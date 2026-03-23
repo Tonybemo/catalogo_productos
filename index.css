@@ -9,6 +9,8 @@
     --danger: #ef4444;
     --insecticida-color: #10b981; /* Emerald */
     --rodenticida-color: #f59e0b; /* Amber */
+    --desinfectante-color: #3b82f6; /* Blue */
+    --otro-color: #8b5cf6; /* Purple */
     --glass-blur: blur(12px);
 }
 
@@ -119,6 +121,8 @@ main {
 
 .category-title.insecticidas-title i { color: var(--insecticida-color); }
 .category-title.rodenticidas-title i { color: var(--rodenticida-color); }
+.category-title.desinfectantes-title i { color: var(--desinfectante-color); }
+.category-title.otros-title i { color: var(--otro-color); }
 
 .grid {
     display: grid;
@@ -152,7 +156,7 @@ main {
     height: 60px;
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.05);
-    object-fit: cover;
+    object-fit: contain;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -201,6 +205,14 @@ main {
 .badge-rodenticidas {
     background: rgba(245, 158, 11, 0.1);
     color: var(--rodenticida-color);
+}
+.badge-desinfectantes {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--desinfectante-color);
+}
+.badge-otros {
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--otro-color);
 }
 
 /* FAB */
@@ -391,7 +403,7 @@ main {
 .detail-image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     z-index: 1;
 }
 
