@@ -136,8 +136,11 @@
 
                         <div class="form-group">
                             <label><i class="fas fa-file-pdf"></i> Ficha de Seguridad (SDS)</label>
-                            <input type="file" id="formFichaSeguridad" accept=".pdf,image/*">
-                            <small style="color: var(--text-secondary); display: block; margin-top: 4px;">PDF o imagen de la ficha técnica.</small>
+                            <label for="formFichaSeguridad" class="attach-btn" style="width: 100%; justify-content: center; background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); border: 1px solid var(--card-border); box-shadow: none; padding: 12px;">
+                                <i class="fas fa-paperclip"></i> <span id="sdsFileName">Adjuntar Ficha (PDF/Imagen)</span>
+                            </label>
+                            <input type="file" id="formFichaSeguridad" accept=".pdf,image/*" style="display: none;">
+                            <small id="sdsHint" style="color: var(--text-secondary); display: block; margin-top: 8px; font-size: 0.75rem;">Si ya tiene una ficha, puedes subir una nueva para reemplazarla.</small>
                         </div>
 
                         <div class="form-actions">

@@ -231,8 +231,15 @@ const defaultProductos = [
   const formMetodoAplicacion = document.getElementById('formMetodoAplicacion');
   const formFechaCaducidad = document.getElementById('formFechaCaducidad');
   const formFichaSeguridad = document.getElementById('formFichaSeguridad');
+  const sdsFileName = document.getElementById('sdsFileName');
   
   let currentProductId = null;
+
+  // Actualizar nombre de archivo SDS al seleccionar
+  formFichaSeguridad.addEventListener('change', (e) => {
+      const name = e.target.files[0] ? e.target.files[0].name : 'Adjuntar Ficha (PDF/Imagen)';
+      sdsFileName.innerText = name;
+  });
   
   // Initial Render
   document.addEventListener('DOMContentLoaded', async () => {
@@ -244,7 +251,34 @@ const defaultProductos = [
           .then(() => console.log('Service Worker Registrado'))
           .catch(err => console.error('Error Service Worker:', err));
       }
+      
+      // Request Notification Permission
+      requestNotificationPermission();
   });
+  
+  async function requestNotificationPermission() {
+      if ("Notification" in window && Notification.permission !== "granted") {
+          await Notification.requestPermission();
+      }
+  }
+
+  function checkExpiries() {
+      const hoy = new Date();
+      const caducados = productos.filter(p => p.fecha_caducidad && new Date(p.fecha_caducidad) < hoy);
+      const proximos = productos.filter(p => {
+          if (!p.fecha_caducidad) return false;
+          const f = new Date(p.fecha_caducidad);
+          const diff = (f - hoy) / (1000 * 60 * 60 * 24);
+          return diff >= 0 && diff <= 30;
+      });
+
+      if ((caducados.length > 0 || proximos.length > 0) && Notification.permission === "granted") {
+          new Notification("Aviso de Almacén", {
+              body: `Hay ${caducados.length} productos caducados y ${proximos.length} próximos a caducar.`,
+              icon: "icon.png"
+          });
+      }
+  }
   
   async function fetchProducts() {
       try {
@@ -261,6 +295,7 @@ const defaultProductos = [
           }
           
           renderProducts(productos);
+          checkExpiries();
       } catch (err) {
           console.error("Error connecting to Supabase:", err);
           productos = defaultProductos;
@@ -333,9 +368,6 @@ const defaultProductos = [
       const imgSrc = product.imagen;
       
       let secProp = product.categoria === 'RODENTICIDAS' ? product.sustanciaActiva : product.materiaActiva;
-      if (product.lote && product.lote.trim() !== '') {
-         secProp += ` • Lote: ${product.lote}`;
-      }
   
       let plazoBadgeHTML = '';
       if (product.plazoSeguridad && product.plazoSeguridad.trim().toUpperCase() !== 'NA' && product.plazoSeguridad.trim() !== '') {
@@ -563,6 +595,7 @@ const defaultProductos = [
       formTitle.innerText = "Añadir Producto";
       productForm.reset();
       document.getElementById('formProductId').value = '';
+      document.getElementById('sdsFileName').innerText = 'Adjuntar Ficha (PDF/Imagen)';
       formCategoria.dispatchEvent(new Event('change'));
       btnDelete.classList.add('hidden');
       formModal.classList.add('show');
@@ -585,6 +618,7 @@ const defaultProductos = [
       document.getElementById('formPlaga').value = p.plaga || '';
       document.getElementById('formFechaCaducidad').value = p.fecha_caducidad || '';
       formFichaSeguridad.value = ''; // Reset file input
+      document.getElementById('sdsFileName').innerText = 'Adjuntar Ficha (PDF/Imagen)';
       
       if (p.categoria === 'RODENTICIDAS') {
           document.getElementById('formSustanciaActiva').value = p.sustanciaActiva || '';
