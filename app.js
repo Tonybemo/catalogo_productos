@@ -1,4 +1,14 @@
-const defaultProductos = [];
+const defaultProductos = [
+    {
+        id: "ejemplo-1",
+        categoria: "INSECTICIDAS",
+        nombre: "PRODUCTO DE EJEMPLO",
+        materiaActiva: "Materia de Ejemplo",
+        registro: "00-00-00000",
+        lote: "L-0000",
+        plazoSeguridad: "No aplica"
+    }
+];
   
   // Supabase initialization
   const supabaseUrl = 'https://cuhbqppdndzvxvlhlszn.supabase.co';
@@ -43,16 +53,25 @@ const defaultProductos = [];
   document.addEventListener('DOMContentLoaded', async () => {
       await fetchProducts();
       
-      // Register Service Worker and Detect updates
+      // Register Service Worker and Detect updates without loop
       if ('serviceWorker' in navigator) {
+          let refreshing = false;
+          
+          // Detect controller change (when a new SW takes over)
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+              if (refreshing) return;
+              refreshing = true;
+              console.log('Nuevo controlador detectado. Recargando para aplicar cambios...');
+              window.location.reload();
+          });
+
           navigator.serviceWorker.register('sw.js').then(reg => {
               reg.addEventListener('updatefound', () => {
                   const newWorker = reg.installing;
+                  if (!newWorker) return;
                   newWorker.addEventListener('statechange', () => {
                       if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                          // Nueva versión disponible y cacheada
-                          console.log('Nueva versión detectada. Recargando...');
-                          location.reload();
+                          console.log('Nueva versión instalada. Esperando activación...');
                       }
                   });
               });
@@ -88,12 +107,12 @@ const defaultProductos = [];
   }
   
   async function fetchProducts() {
+      // Mostrar estado de carga
+      container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);"><i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px;"></i><p>Conectando con la base de datos...</p></div>';
+
       try {
           const { data, error } = await supabaseClient.from('productos').select('*');
-          if (error) {
-              console.error('Error fetched products:', error);
-              return;
-          }
+          if (error) throw error;
           
           if (!data || data.length === 0) {
               productos = defaultProductos;
@@ -105,8 +124,17 @@ const defaultProductos = [];
           checkExpiries();
       } catch (err) {
           console.error("Error connecting to Supabase:", err);
-          productos = defaultProductos;
-          renderProducts(productos);
+          container.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--danger);">
+              <i class="fas fa-exclamation-circle" style="font-size: 2.5rem; margin-bottom: 15px;"></i>
+              <p>Error de conexión con la base de datos.</p>
+              <p style="font-size: 0.8rem; margin-top: 10px; color: var(--text-secondary);">Cargando modo offline...</p>
+              <button onclick="location.reload()" style="background: var(--accent-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 15px; cursor: pointer;">Reintentar</button>
+          </div>`;
+          
+          setTimeout(() => {
+              productos = defaultProductos;
+              renderProducts(productos);
+          }, 2000);
       }
   }
 
