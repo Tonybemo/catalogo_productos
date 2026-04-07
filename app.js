@@ -229,6 +229,8 @@ const defaultProductos = [
   const detailDeleteBtn = document.getElementById('detailDeleteBtn');
   const formPlazoSeguridad = document.getElementById('formPlazoSeguridad');
   const formMetodoAplicacion = document.getElementById('formMetodoAplicacion');
+  const formFechaCaducidad = document.getElementById('formFechaCaducidad');
+  const formFichaSeguridad = document.getElementById('formFichaSeguridad');
   
   let currentProductId = null;
   
@@ -342,14 +344,30 @@ const defaultProductos = [
           plazoBadgeHTML = `<div style="color: var(--insecticida-color); font-size: 0.75rem; font-weight: 600; margin-top: 5px;"><i class="fas fa-check-circle"></i> Plazo seg.: No aplica</div>`;
       }
 
+      let caducidadHTML = '';
+      if (product.fecha_caducidad) {
+          const hoy = new Date();
+          const fechaCad = new Date(product.fecha_caducidad);
+          const diffTiempo = fechaCad - hoy;
+          const diffDias = Math.ceil(diffTiempo / (1000 * 60 * 60 * 24));
+
+          if (diffDias < 0) {
+              caducidadHTML = `<div class="expiry-badge expiry-red"><i class="fas fa-calendar-times"></i> CADUCADO</div>`;
+          } else if (diffDias <= 30) {
+              caducidadHTML = `<div class="expiry-badge expiry-orange"><i class="fas fa-hourglass-half"></i> CADUCA EN ${diffDias} DÍAS</div>`;
+          }
+      }
+
       card.innerHTML = `
           <div class="card-image-thumbnail">
               ${imgSrc ? `<img src="${imgSrc}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">` : '<i class="fas fa-camera"></i>'}
           </div>
           <div class="card-info">
               <h3 class="product-name">${product.nombre}</h3>
+              <div class="card-lote">${product.lote ? `Lote: ${product.lote}` : 'Lote: -'}</div>
               <p class="product-subtitle">${secProp}</p>
               ${plazoBadgeHTML}
+              ${caducidadHTML}
           </div>
           <div class="category-badge ${product.categoria === 'INSECTICIDAS' ? 'badge-insecticidas' : product.categoria === 'RODENTICIDAS' ? 'badge-rodenticidas' : product.categoria === 'DESINFECTANTES' ? 'badge-desinfectantes' : 'badge-otros'}">
               ${product.categoria.substring(0,3)}
@@ -406,6 +424,21 @@ const defaultProductos = [
       let plazoColor = (plazoStr.toUpperCase() !== 'NA' && plazoStr !== 'No aplica') ? 'var(--danger)' : 'var(--insecticida-color)';
       propsHTML += `<div class="prop-item" style="border-left-color: ${plazoColor};"><div class="prop-label">Plazo de Seguridad</div><div class="prop-value" style="color: ${plazoColor}; font-weight: 600;">${plazoStr}</div></div>`;
       
+      if (product.fecha_caducidad) {
+          propsHTML += `<div class="prop-item"><div class="prop-label">Fecha de Caducidad</div><div class="prop-value">${product.fecha_caducidad}</div></div>`;
+      }
+
+      let sdsHTML = '';
+      if (product.ficha_seguridad_url) {
+          sdsHTML = `
+              <div class="sds-container">
+                  <a href="${product.ficha_seguridad_url}" target="_blank" class="sds-btn">
+                      <i class="fas fa-file-pdf"></i> Ver Ficha de Seguridad
+                  </a>
+              </div>
+          `;
+      }
+
       const badgeCls = product.categoria === 'INSECTICIDAS' ? 'badge-insecticidas' : product.categoria === 'RODENTICIDAS' ? 'badge-rodenticidas' : product.categoria === 'DESINFECTANTES' ? 'badge-desinfectantes' : 'badge-otros';
   
       modalBody.innerHTML = `
@@ -430,6 +463,7 @@ const defaultProductos = [
           <div class="prop-list">
               ${propsHTML}
           </div>
+          ${sdsHTML}
       `;
       
       document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
@@ -549,6 +583,8 @@ const defaultProductos = [
       document.getElementById('formPlazoSeguridad').value = p.plazoSeguridad || '';
       document.getElementById('formMetodoAplicacion').value = p.metodoAplicacion || '';
       document.getElementById('formPlaga').value = p.plaga || '';
+      document.getElementById('formFechaCaducidad').value = p.fecha_caducidad || '';
+      formFichaSeguridad.value = ''; // Reset file input
       
       if (p.categoria === 'RODENTICIDAS') {
           document.getElementById('formSustanciaActiva').value = p.sustanciaActiva || '';
@@ -593,10 +629,22 @@ const defaultProductos = [
       
       if (isEdit) {
           const oldProduct = productos.find(p => p.id === newProduct.id);
-          if (oldProduct && oldProduct.imagen) {
-              newProduct.imagen = oldProduct.imagen;
+          if (oldProduct) {
+              if (oldProduct.imagen) newProduct.imagen = oldProduct.imagen;
+              if (oldProduct.ficha_seguridad_url) newProduct.ficha_seguridad_url = oldProduct.ficha_seguridad_url;
           }
       }
+
+      // Handle SDS upload if a file is selected
+      const sdsFile = formFichaSeguridad.files[0];
+      if (sdsFile) {
+          const sdsUrl = await uploadSDS(sdsFile, newProduct.id);
+          if (sdsUrl) {
+              newProduct.ficha_seguridad_url = sdsUrl;
+          }
+      }
+
+      newProduct.fecha_caducidad = formFechaCaducidad.value || null;
 
       // Upsert to Supabase
       const { error } = await supabaseClient.from('productos').upsert([newProduct]);
@@ -610,6 +658,30 @@ const defaultProductos = [
       searchInput.value = ''; // clear search when adding
       formModal.classList.remove('show');
   });
+
+  async function uploadSDS(file, productId) {
+      try {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${productId}_sds_${Date.now()}.${fileExt}`;
+          const filePath = `${fileName}`;
+
+          const { data, error } = await supabaseClient.storage
+              .from('fichas_seguridad')
+              .upload(filePath, file);
+
+          if (error) throw error;
+
+          const { data: { publicUrl } } = supabaseClient.storage
+              .from('fichas_seguridad')
+              .getPublicUrl(filePath);
+
+          return publicUrl;
+      } catch (err) {
+          console.error('Error uploading SDS:', err);
+          alert("Error al subir la ficha de seguridad");
+          return null;
+      }
+  }
   
   btnDelete.addEventListener('click', async () => {
       if(confirm('¿Seguro que quieres eliminar este producto?')) {

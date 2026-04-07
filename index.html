@@ -129,6 +129,17 @@
                             <input type="text" id="formMetodoAplicacion" placeholder="Ej: Pulverización, Cebo">
                         </div>
 
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar-alt"></i> Fecha de Caducidad</label>
+                            <input type="date" id="formFechaCaducidad">
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fas fa-file-pdf"></i> Ficha de Seguridad (SDS)</label>
+                            <input type="file" id="formFichaSeguridad" accept=".pdf,image/*">
+                            <small style="color: var(--text-secondary); display: block; margin-top: 4px;">PDF o imagen de la ficha técnica.</small>
+                        </div>
+
                         <div class="form-actions">
                             <button type="button" id="btnDelete" class="btn-danger hidden"><i class="fas fa-trash"></i></button>
                             <button type="submit" class="btn-primary">Guardar Producto</button>
