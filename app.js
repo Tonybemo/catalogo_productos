@@ -127,14 +127,16 @@ const defaultProductos = [
           container.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--danger);">
               <i class="fas fa-exclamation-circle" style="font-size: 2.5rem; margin-bottom: 15px;"></i>
               <p>Error de conexión con la base de datos.</p>
-              <p style="font-size: 0.8rem; margin-top: 10px; color: var(--text-secondary);">Cargando modo offline...</p>
+              <p style="font-size: 0.8rem; margin-top: 10px; color: var(--text-secondary);">Detalle: ${err.message || err.code || 'Error desconocido'}</p>
               <button onclick="location.reload()" style="background: var(--accent-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 15px; cursor: pointer;">Reintentar</button>
           </div>`;
           
           setTimeout(() => {
-              productos = defaultProductos;
-              renderProducts(productos);
-          }, 2000);
+              if (productos.length === 0) {
+                  productos = defaultProductos;
+                  renderProducts(productos);
+              }
+          }, 3000);
       }
   }
 
