@@ -1,206 +1,4 @@
-const defaultProductos = [
-    // INSECTICIDAS
-    {
-      id: "crawjet-plus",
-      categoria: "INSECTICIDAS",
-      nombre: "CRAWJET PLUS",
-      materiaActiva: "Imidacloprid + Tetrametrina",
-      registro: "20-30-10556 / HA",
-      plaga: "Cucarachas, hormigas, arañas",
-      lote: ""
-    },
-    {
-      id: "mk1-imida-gel",
-      categoria: "INSECTICIDAS",
-      nombre: "MK1 IMIDA GEL",
-      materiaActiva: "Imidacloprid 2,15%",
-      registro: "ES/MR(NA)-2018-18-00526",
-      plaga: "Cucarachas",
-      lote: ""
-    },
-    {
-        id: "hormifin-imidagel",
-        categoria: "INSECTICIDAS",
-        nombre: "HORMIFIN IMIDAGEL",
-        materiaActiva: "Imidacloprid 0,01%",
-        registro: "ES/MR(NA)-2018-18-00476",
-        plaga: "Hormigas",
-        lote: ""
-    },
-    {
-        id: "maxforce-white-ic",
-        categoria: "INSECTICIDAS",
-        nombre: "MAXFORCE WHITE IC",
-        materiaActiva: "Imidacloprid 2,217%",
-        registro: "ES/MR(NA)-2019-18-00595",
-        plaga: "Cucarachas",
-        lote: ""
-    },
-    {
-        id: "maxforce-quantum",
-        categoria: "INSECTICIDAS",
-        nombre: "MAXFORCE QUANTUM",
-        materiaActiva: "Imidacloprid 0,03%",
-        registro: "ES/MR(NA)-2018-18-00483",
-        plaga: "Hormigas",
-        lote: ""
-    },
-    {
-        id: "goliath-gel-new",
-        categoria: "INSECTICIDAS",
-        nombre: "GOLIATH GEL NEW",
-        materiaActiva: "Clotianidina + Piriproxifen",
-        registro: "EU-0024951-0000",
-        plaga: "Cucarachas",
-        lote: ""
-    },
-    {
-        id: "deflow",
-        categoria: "INSECTICIDAS",
-        nombre: "DEFLOW",
-        materiaActiva: "Deltametrina 2,394%",
-        registro: "ES/BB(MR)-2017-18-0446",
-        plaga: "Cucarachas, hormigas",
-        lote: ""
-    },
-    {
-        id: "mythic-sc",
-        categoria: "INSECTICIDAS",
-        nombre: "MYTHIC SC",
-        materiaActiva: "Clorfenapir 10%",
-        registro: "19-30-06183 / HA",
-        plaga: "Cucarachas, chinches",
-        lote: ""
-    },
-    {
-        id: "fendona",
-        categoria: "INSECTICIDAS",
-        nombre: "FENDONA",
-        materiaActiva: "Alfacipermetrina 6%",
-        registro: "ES/MR(NA)-2019-18-00633",
-        plaga: "Multiespacio (rastreros/voladores)",
-        lote: ""
-    },
-    {
-        id: "diptron-etofenprox",
-        categoria: "INSECTICIDAS",
-        nombre: "DIPTRON con ETOFENPROX",
-        materiaActiva: "Etofenprox 10% + Butóxido de Piperonilo 20%",
-        registro: "18-30-09355",
-        plaga: "",
-        lote: ""
-    },
-
-    // RODENTICIDAS
-    {
-        id: "muridox-40-pasta",
-        categoria: "RODENTICIDAS",
-        nombre: "MURIDOX-40 PASTA",
-        registro: "ES/APP(NA)-2018-14-00225",
-        sustanciaActiva: "Brodifacoum 0,005%",
-        formulacion: "Cebo fresco",
-        lote: ""
-    },
-    {
-        id: "muridox-40-bloques",
-        categoria: "RODENTICIDAS",
-        nombre: "MURIDOX-40 BLOQUES",
-        registro: "ES/APP(NA)-2018-14-00232",
-        sustanciaActiva: "Brodifacoum 0,005%",
-        formulacion: "Bloques",
-        lote: ""
-    },
-    {
-        id: "muridox-brodi-p25-pasta",
-        categoria: "RODENTICIDAS",
-        nombre: "MURIDOX BRODI-P25 PASTA",
-        registro: "ES/MR(NA)-2018-14-00534",
-        sustanciaActiva: "Brodifacoum 0,0025%",
-        formulacion: "Cebo fresco",
-        lote: ""
-    },
-    {
-        id: "muridox-brodi-25-pasta",
-        categoria: "RODENTICIDAS",
-        nombre: "MURIDOX BRODI 25 PASTA",
-        registro: "ES/BB(NA)-2018-14-00558",
-        sustanciaActiva: "Brodifacoum 0,0025%",
-        formulacion: "Cebo fresco",
-        lote: ""
-    },
-    {
-        id: "muridox-brodi-p25-bloque",
-        categoria: "RODENTICIDAS",
-        nombre: "MURIDOX BRODI-P25 BLOQUE",
-        registro: "ES/MR(NA)-2018-14-00533",
-        sustanciaActiva: "Brodifacoum 0,0025%",
-        formulacion: "Bloques",
-        lote: ""
-    },
-    {
-        id: "muridox-20-pasta",
-        categoria: "RODENTICIDAS",
-        nombre: "MURIDOX-20 PASTA",
-        registro: "ES/APP(NA)-2018-14-00116",
-        sustanciaActiva: "Bromadiolona 0,005%",
-        formulacion: "Cebo fresco",
-        lote: ""
-    },
-    {
-        id: "muridox-20-bloques",
-        categoria: "RODENTICIDAS",
-        nombre: "MURIDOX-20 BLOQUES",
-        registro: "ES/APP(NA)-2018-14-00115",
-        sustanciaActiva: "Bromadiolona 0,005%",
-        formulacion: "Bloques",
-        lote: ""
-    },
-    {
-        id: "muridox-broma-p25-bloque",
-        categoria: "RODENTICIDAS",
-        nombre: "MURIDOX BROMA-P25 BLOQUE",
-        registro: "ES/MR(NA)-2018-14-00493",
-        sustanciaActiva: "Bromadiolona 0,0025%",
-        formulacion: "Bloques",
-        lote: ""
-    },
-    {
-        id: "muridox-30-pasta",
-        categoria: "RODENTICIDAS",
-        nombre: "MURIDOX-30 PASTA",
-        registro: "ES/APP(NA)-2018-14-00085",
-        sustanciaActiva: "Difenacoum 0,005%",
-        formulacion: "Cebo fresco",
-        lote: ""
-    },
-    {
-        id: "muridox-30-bloques",
-        categoria: "RODENTICIDAS",
-        nombre: "MURIDOX-30 BLOQUES",
-        registro: "ES/APP(NA)-2018-14-00063",
-        sustanciaActiva: "Difenacoum 0,005%",
-        formulacion: "Bloques",
-        lote: ""
-    },
-    {
-        id: "muridox-dife-p25-bloque",
-        categoria: "RODENTICIDAS",
-        nombre: "MURIDOX DIFE-P25 BLOQUE",
-        registro: "ES/MR(NA)-2018-14-00500",
-        sustanciaActiva: "Difenacoum 0,0025%",
-        formulacion: "Bloques",
-        lote: ""
-    },
-    {
-        id: "storm-ultra-secure",
-        categoria: "RODENTICIDAS",
-        nombre: "STORM ULTRA SECURE",
-        registro: "ES/MR(NA)-2019-14-00578",
-        sustanciaActiva: "Flocoumafen 0,0025%",
-        formulacion: "Bloques",
-        lote: ""
-    }
-  ];
+const defaultProductos = [];
   
   // Supabase initialization
   const supabaseUrl = 'https://cuhbqppdndzvxvlhlszn.supabase.co';
@@ -245,11 +43,20 @@ const defaultProductos = [
   document.addEventListener('DOMContentLoaded', async () => {
       await fetchProducts();
       
-      // Register Service Worker
+      // Register Service Worker and Detect updates
       if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('sw.js')
-          .then(() => console.log('Service Worker Registrado'))
-          .catch(err => console.error('Error Service Worker:', err));
+          navigator.serviceWorker.register('sw.js').then(reg => {
+              reg.addEventListener('updatefound', () => {
+                  const newWorker = reg.installing;
+                  newWorker.addEventListener('statechange', () => {
+                      if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                          // Nueva versión disponible y cacheada
+                          console.log('Nueva versión detectada. Recargando...');
+                          location.reload();
+                      }
+                  });
+              });
+          });
       }
       
       // Request Notification Permission

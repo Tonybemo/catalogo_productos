@@ -1,4 +1,4 @@
-const CACHE_NAME = 'catalogo-v6';
+const CACHE_NAME = 'catalogo-v7';
 const ASSETS = [
     './',
     './index.html',
@@ -33,20 +33,28 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-    // No cachear peticiones a la API de Supabase para tener siempre datos frescos
+    // 1. No cachear peticiones a la API de Supabase o Storage para tener siempre datos frescos
     if (e.request.url.includes('supabase.co')) {
         e.respondWith(fetch(e.request));
         return;
     }
 
+    // 2. Estrategia Network First para los assets principales (index, app.js, css)
+    // Esto asegura que si hay conexión, se baje la versión más nueva.
     e.respondWith(
-        caches.match(e.request)
+        fetch(e.request)
         .then(response => {
-            return response || fetch(e.request).catch(() => {
-                // Return fallback if offline and not in cache
-                if (e.request.destination === 'document') {
-                    return caches.match('./index.html');
-                }
+            // Si la respuesta es válida, actualizamos el caché en segundo plano
+            if (response && response.status === 200) {
+                const resClone = response.clone();
+                caches.open(CACHE_NAME).then(cache => cache.put(e.request, resClone));
+            }
+            return response;
+        })
+        .catch(() => {
+            // Si falla la red (offline), tiramos del caché
+            return caches.match(e.request).then(res => {
+                return res || (e.request.destination === 'document' ? caches.match('./index.html') : null);
             });
         })
     );
