@@ -88,7 +88,7 @@ const defaultProductos = [
       }
   }
 
-  function checkExpiries() {
+  async function checkExpiries() {
       const hoy = new Date();
       const caducados = productos.filter(p => p.fecha_caducidad && new Date(p.fecha_caducidad) < hoy);
       const proximos = productos.filter(p => {
@@ -99,10 +99,23 @@ const defaultProductos = [
       });
 
       if ((caducados.length > 0 || proximos.length > 0) && Notification.permission === "granted") {
-          new Notification("Aviso de Almacén", {
-              body: `Hay ${caducados.length} productos caducados y ${proximos.length} próximos a caducar.`,
-              icon: "icon.png"
-          });
+          try {
+              if ('serviceWorker' in navigator) {
+                  const reg = await navigator.serviceWorker.ready;
+                  reg.showNotification("Aviso de Almacén", {
+                      body: `Hay ${caducados.length} productos caducados y ${proximos.length} próximos a caducar.`,
+                      icon: "icon.png",
+                      badge: "icon.png"
+                  });
+              } else {
+                  new Notification("Aviso de Almacén", {
+                      body: `Hay ${caducados.length} productos caducados y ${proximos.length} próximos a caducar.`,
+                      icon: "icon.png"
+                  });
+              }
+          } catch (e) {
+              console.warn("No se pudo mostrar la notificación:", e);
+          }
       }
   }
   
@@ -121,7 +134,10 @@ const defaultProductos = [
           }
           
           renderProducts(productos);
-          checkExpiries();
+          
+          // Ejecutar avisos de caducidad de forma aislada para no romper la app
+          checkExpiries().catch(e => console.warn("Error en checkExpiries:", e));
+          
       } catch (err) {
           console.error("Error connecting to Supabase:", err);
           container.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--danger);">
