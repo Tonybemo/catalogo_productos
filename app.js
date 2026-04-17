@@ -21,6 +21,10 @@ const defaultProductos = [
   const container = document.getElementById('productosContainer');
   const searchInput = document.getElementById('searchInput');
   const noResults = document.getElementById('noResults');
+  const homeMenu = document.getElementById('homeMenu');
+  const productosView = document.getElementById('productosView');
+  const categoryHeader = document.getElementById('categoryHeader');
+  const backBtn = document.getElementById('backBtn');
   const modal = document.getElementById('productModal');
   const modalBody = document.getElementById('modalBody');
   const closeModal = document.getElementById('closeModal');
@@ -42,12 +46,32 @@ const defaultProductos = [
   const sdsFileName = document.getElementById('sdsFileName');
   
   let currentProductId = null;
+  let currentCategory = null;
 
   // Actualizar nombre de archivo SDS al seleccionar
   formFichaSeguridad.addEventListener('change', (e) => {
       const name = e.target.files[0] ? e.target.files[0].name : 'Adjuntar Ficha (PDF/Imagen)';
       sdsFileName.innerText = name;
   });
+  
+  if (backBtn) {
+      backBtn.addEventListener('click', () => {
+          renderMenu();
+      });
+  }
+
+  function refreshCurrentView() {
+      // Evita renderizar vistas nulas si no se ha inicializado
+      if (homeMenu && !homeMenu.innerHTML) renderMenu();
+      
+      if (searchInput.value.trim() !== '') {
+          searchInput.dispatchEvent(new Event('input'));
+      } else if (currentCategory) {
+          openCategory(currentCategory);
+      } else {
+          renderMenu();
+      }
+  }
   
   // Initial Render
   document.addEventListener('DOMContentLoaded', async () => {
@@ -133,7 +157,7 @@ const defaultProductos = [
               productos = data;
           }
           
-          renderProducts(productos);
+          refreshCurrentView();
           
           // Ejecutar avisos de caducidad de forma aislada para no romper la app
           checkExpiries().catch(e => console.warn("Error en checkExpiries:", e));
@@ -150,7 +174,7 @@ const defaultProductos = [
           setTimeout(() => {
               if (productos.length === 0) {
                   productos = defaultProductos;
-                  renderProducts(productos);
+                  refreshCurrentView();
               }
           }, 3000);
       }
@@ -160,6 +184,94 @@ const defaultProductos = [
       // localStorage.setItem('productos', JSON.stringify(productos));
   }
   
+  // Menu Render
+  function renderMenu() {
+      currentCategory = null;
+      homeMenu.classList.remove('hidden');
+      productosView.classList.add('hidden');
+      searchInput.value = '';
+      
+      const insecticidas = productos.filter(p => p.categoria === 'INSECTICIDAS');
+      const rodenticidas = productos.filter(p => p.categoria === 'RODENTICIDAS');
+      const biocidas = productos.filter(p => p.categoria === 'DESINFECTANTES' || p.categoria === 'OTROS');
+      
+      const hoy = new Date();
+      const caducadosOProximos = productos.filter(p => {
+          if (!p.fecha_caducidad) return false;
+          const f = new Date(p.fecha_caducidad);
+          const diff = (f - hoy) / (1000 * 60 * 60 * 24);
+          return diff <= 30; // Caducados o próximos a 30 días
+      });
+
+      homeMenu.innerHTML = `
+          <div class="menu-card" onclick="openCategory('INSECTICIDAS')">
+              <div class="menu-icon" style="color: var(--insecticida-color); background: rgba(16, 185, 129, 0.1);"><i class="fas fa-bug"></i></div>
+              <div class="menu-info">
+                  <h3>Insecticidas</h3>
+                  <p>${insecticidas.length} productos</p>
+              </div>
+          </div>
+          <div class="menu-card" onclick="openCategory('RODENTICIDAS')">
+              <div class="menu-icon" style="color: var(--rodenticida-color); background: rgba(245, 158, 11, 0.1);"><i class="fas fa-mouse"></i></div>
+              <div class="menu-info">
+                  <h3>Rodenticidas</h3>
+                  <p>${rodenticidas.length} productos</p>
+              </div>
+          </div>
+          <div class="menu-card" onclick="openCategory('BIOCIDAS')">
+              <div class="menu-icon" style="color: var(--desinfectante-color); background: rgba(6, 182, 212, 0.1);"><i class="fas fa-shield-virus"></i></div>
+              <div class="menu-info">
+                  <h3>Biocidas y Otros</h3>
+                  <p>${biocidas.length} productos</p>
+              </div>
+          </div>
+          <div class="menu-card" onclick="openCategory('CADUCIDAD')" style="border-left: 4px solid var(--danger);">
+              <div class="menu-icon" style="color: var(--danger); background: rgba(239, 68, 68, 0.1);"><i class="fas fa-calendar-times"></i></div>
+              <div class="menu-info">
+                  <h3>Próximos a Caducar</h3>
+                  <p>${caducadosOProximos.length} productos</p>
+              </div>
+          </div>
+      `;
+  }
+  
+  function openCategory(cat) {
+      currentCategory = cat;
+      homeMenu.classList.add('hidden');
+      productosView.classList.remove('hidden');
+      
+      let filtered = [];
+      let title = "";
+      let icon = "";
+      
+      if (cat === 'INSECTICIDAS') {
+          filtered = productos.filter(p => p.categoria === 'INSECTICIDAS');
+          title = "Insecticidas";
+          icon = 'fas fa-bug';
+      } else if (cat === 'RODENTICIDAS') {
+          filtered = productos.filter(p => p.categoria === 'RODENTICIDAS');
+          title = "Rodenticidas";
+          icon = 'fas fa-mouse';
+      } else if (cat === 'BIOCIDAS') {
+          filtered = productos.filter(p => p.categoria === 'DESINFECTANTES' || p.categoria === 'OTROS');
+          title = "Biocidas y Otros";
+          icon = 'fas fa-shield-virus';
+      } else if (cat === 'CADUCIDAD') {
+          const hoy = new Date();
+          filtered = productos.filter(p => {
+              if (!p.fecha_caducidad) return false;
+              const f = new Date(p.fecha_caducidad);
+              const diff = (f - hoy) / (1000 * 60 * 60 * 24);
+              return diff <= 30;
+          });
+          title = "Próximos a Caducar";
+          icon = 'fas fa-calendar-times';
+      }
+      
+      categoryHeader.innerHTML = `<h2><i class="${icon}"></i> ${title}</h2>`;
+      renderProducts(filtered);
+  }
+
   // Renderizar Lista
   function renderProducts(productsToRender) {
       container.innerHTML = '';
@@ -171,46 +283,14 @@ const defaultProductos = [
       
       noResults.classList.add('hidden');
       
-      const insecticidas = productsToRender.filter(p => p.categoria === 'INSECTICIDAS');
-      const rodenticidas = productsToRender.filter(p => p.categoria === 'RODENTICIDAS');
-      const desinfectantes = productsToRender.filter(p => p.categoria === 'DESINFECTANTES');
-      const otros = productsToRender.filter(p => p.categoria === 'OTROS');
-      
-      if (insecticidas.length > 0) {
-          container.appendChild(createCategorySection('INSECTICIDAS', insecticidas, 'fas fa-bug', 'insecticidas-title'));
-      }
-      
-      if (rodenticidas.length > 0) {
-          container.appendChild(createCategorySection('RODENTICIDAS', rodenticidas, 'fas fa-mouse', 'rodenticidas-title'));
-      }
-
-      if (desinfectantes.length > 0) {
-          container.appendChild(createCategorySection('DESINFECTANTES', desinfectantes, 'fas fa-shield-virus', 'desinfectantes-title'));
-      }
-
-      if (otros.length > 0) {
-          container.appendChild(createCategorySection('OTROS / BIOCIDAS', otros, 'fas fa-vial', 'otros-title'));
-      }
-  }
-  
-  function createCategorySection(title, items, iconClass, titleClass) {
-      const section = document.createElement('div');
-      section.className = 'category-section';
-      
-      const titleEl = document.createElement('h2');
-      titleEl.className = `category-title ${titleClass}`;
-      titleEl.innerHTML = `<i class="${iconClass}"></i> ${title}`;
-      section.appendChild(titleEl);
-      
       const grid = document.createElement('div');
       grid.className = 'grid';
       
-      items.forEach(item => {
+      productsToRender.forEach(item => {
           grid.appendChild(createProductCard(item));
       });
       
-      section.appendChild(grid);
-      return section;
+      container.appendChild(grid);
   }
   
   function createProductCard(product) {
@@ -220,7 +300,7 @@ const defaultProductos = [
       
       const imgSrc = product.imagen;
       
-      let secProp = product.categoria === 'RODENTICIDAS' ? product.sustanciaActiva : product.materiaActiva;
+      let secProp = product.registro ? `Nº Registro: ${product.registro}` : 'Nº Registro: -';
   
       let plazoBadgeHTML = '';
       if (product.plazoSeguridad && product.plazoSeguridad.trim().toUpperCase() !== 'NA' && product.plazoSeguridad.trim() !== '') {
@@ -264,6 +344,20 @@ const defaultProductos = [
   // Buscar
   searchInput.addEventListener('input', (e) => {
       const term = e.target.value.toLowerCase();
+      
+      if (term.trim() === '') {
+          if (currentCategory) {
+              openCategory(currentCategory);
+          } else {
+              renderMenu();
+          }
+          return;
+      }
+      
+      homeMenu.classList.add('hidden');
+      productosView.classList.remove('hidden');
+      categoryHeader.innerHTML = `<h2><i class="fas fa-search"></i> Resultados de búsqueda</h2>`;
+      
       const filtered = productos.filter(p => {
           return p.nombre.toLowerCase().includes(term) ||
                  (p.materiaActiva && p.materiaActiva.toLowerCase().includes(term)) ||
@@ -359,7 +453,7 @@ const defaultProductos = [
   closeModal.addEventListener('click', () => {
       modal.classList.remove('show');
       setTimeout(() => {
-          renderProducts(productos); // Refresh to show thumbnail changes
+          refreshCurrentView(); // Refresh to show thumbnail changes
       }, 300);
   });
   

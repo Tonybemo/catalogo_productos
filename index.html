@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Catálogo</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#f8fafc">
     <link rel="stylesheet" href="index.css">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Cache-Control" content="no-cache">
@@ -28,10 +28,20 @@
 
         <!-- Main Content -->
         <main>
-            <div id="productosContainer"></div>
-            <div id="noResults" class="hidden">
-                <i class="fas fa-box-open"></i>
-                <p>No se encontraron productos.</p>
+            <div id="homeMenu" class="home-menu">
+                <!-- Menu Inyectado vía JS -->
+            </div>
+            
+            <div id="productosView" class="hidden">
+                <div class="view-header">
+                    <button id="backBtn" class="back-btn"><i class="fas fa-arrow-left"></i> Volver</button>
+                    <div id="categoryHeader" class="category-header"></div>
+                </div>
+                <div id="productosContainer"></div>
+                <div id="noResults" class="hidden">
+                    <i class="fas fa-box-open"></i>
+                    <p>No se encontraron productos.</p>
+                </div>
             </div>
         </main>
 
@@ -139,7 +149,7 @@
 
                         <div class="form-group">
                             <label><i class="fas fa-file-pdf"></i> Ficha de Seguridad (SDS)</label>
-                            <label for="formFichaSeguridad" class="attach-btn" style="width: 100%; justify-content: center; background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); border: 1px solid var(--card-border); box-shadow: none; padding: 12px;">
+                            <label for="formFichaSeguridad" class="attach-btn" style="width: 100%; justify-content: center; background: var(--card-border); color: var(--text-primary); border: 1px solid var(--card-border); box-shadow: none; padding: 12px;">
                                 <i class="fas fa-paperclip"></i> <span id="sdsFileName">Adjuntar Ficha (PDF/Imagen)</span>
                             </label>
                             <input type="file" id="formFichaSeguridad" accept=".pdf,image/*" style="display: none;">

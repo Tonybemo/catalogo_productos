@@ -1,15 +1,15 @@
 :root {
-    --bg-color: #0f172a;
-    --card-bg: rgba(30, 41, 59, 0.7);
-    --card-border: rgba(255, 255, 255, 0.1);
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
+    --bg-color: #f8fafc;
+    --card-bg: rgba(255, 255, 255, 0.9);
+    --card-border: #e2e8f0;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
     --accent-color: #3b82f6;
     --accent-hover: #2563eb;
     --danger: #ef4444;
     --insecticida-color: #10b981; /* Emerald */
     --rodenticida-color: #f59e0b; /* Amber */
-    --desinfectante-color: #3b82f6; /* Blue */
+    --desinfectante-color: #06b6d4; /* Cyan */
     --otro-color: #8b5cf6; /* Purple */
     --glass-blur: blur(12px);
 }
@@ -42,7 +42,7 @@ header {
     top: 0;
     z-index: 10;
     padding: 20px;
-    background: rgba(15, 23, 42, 0.85);
+    background: rgba(248, 250, 252, 0.85);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border-bottom: 1px solid var(--card-border);
@@ -85,7 +85,7 @@ h1 i {
     padding: 12px 15px 12px 45px;
     border-radius: 12px;
     border: 1px solid var(--card-border);
-    background: rgba(255, 255, 255, 0.05);
+    background: #f1f5f9;
     color: var(--text-primary);
     font-size: 1rem;
     outline: none;
@@ -94,7 +94,7 @@ h1 i {
 
 #searchInput:focus {
     border-color: var(--accent-color);
-    background: rgba(255, 255, 255, 0.08);
+    background: #ffffff;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
@@ -155,7 +155,7 @@ main {
     width: 60px;
     height: 60px;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.05);
+    background: #f1f5f9;
     object-fit: contain;
     display: flex;
     justify-content: center;
@@ -268,7 +268,7 @@ main {
     padding: 12px 15px;
     border-radius: 12px;
     border: 1px solid var(--card-border);
-    background: rgba(255, 255, 255, 0.05);
+    background: #f1f5f9;
     color: var(--text-primary);
     font-size: 1rem;
     outline: none;
@@ -376,7 +376,7 @@ main {
 }
 
 .icon-btn {
-    background: rgba(255, 255, 255, 0.1);
+    background: #f1f5f9;
     border: none;
     color: var(--text-primary);
     width: 36px;
@@ -398,7 +398,7 @@ main {
     width: 100%;
     height: 250px;
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.03);
+    background: #f1f5f9;
     border: 2px dashed var(--card-border);
     display: flex;
     flex-direction: column;
@@ -482,7 +482,7 @@ input[type="file"] {
 }
 
 .prop-item {
-    background: rgba(255, 255, 255, 0.03);
+    background: #f8fafc;
     padding: 15px;
     border-radius: 12px;
     border-left: 4px solid var(--accent-color);
@@ -555,4 +555,90 @@ input[type="file"] {
     font-size: 3rem;
     margin-bottom: 15px;
     opacity: 0.5;
+}
+
+/* Home Menu */
+.home-menu {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+.menu-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.menu-card:active {
+    transform: scale(0.98);
+}
+
+.menu-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.8rem;
+    flex-shrink: 0;
+}
+
+.menu-info h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--text-primary);
+}
+
+.menu-info p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.view-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.back-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    transition: background 0.2s;
+}
+
+.back-btn:active {
+    background: #f1f5f9;
+}
+
+.category-header {
+    flex-grow: 1;
+}
+
+.category-header h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-primary);
 }
