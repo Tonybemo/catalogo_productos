@@ -1,9 +1,9 @@
 :root {
-    --bg-color: #f8fafc;
-    --card-bg: rgba(255, 255, 255, 0.9);
-    --card-border: #e2e8f0;
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
+    --bg-color: #e2e8f0; /* Darker slate-200 for better contrast */
+    --card-bg: #ffffff; /* Pure white cards */
+    --card-border: #cbd5e1; /* Slate-300 borders */
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
     --accent-color: #3b82f6;
     --accent-hover: #2563eb;
     --danger: #ef4444;
@@ -42,7 +42,7 @@ header {
     top: 0;
     z-index: 10;
     padding: 20px;
-    background: rgba(248, 250, 252, 0.85);
+    background: rgba(241, 245, 249, 0.95);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border-bottom: 1px solid var(--card-border);
@@ -143,6 +143,7 @@ main {
     gap: 15px;
     cursor: pointer;
     transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     overflow: hidden;
     position: relative;
 }
@@ -482,7 +483,7 @@ input[type="file"] {
 }
 
 .prop-item {
-    background: #f8fafc;
+    background: #f1f5f9;
     padding: 15px;
     border-radius: 12px;
     border-left: 4px solid var(--accent-color);
@@ -574,7 +575,7 @@ input[type="file"] {
     gap: 20px;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.06);
 }
 
 .menu-card:active {
