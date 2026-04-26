@@ -19,6 +19,7 @@
         <header>
             <div class="header-top">
                 <h1><i class="fas fa-book-open"></i> Catálogo</h1>
+                <button id="backup-btn" class="icon-btn" title="Copia en Drive" style="color: white; font-size: 1.2rem; background: transparent; border: none; cursor: pointer;" onclick="backupToDrive()"><i class="fab fa-google-drive"></i></button>
             </div>
             <div class="search-container">
                 <i class="fas fa-search search-icon"></i>
@@ -167,6 +168,7 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="app.js"></script>
 </body>
 </html>

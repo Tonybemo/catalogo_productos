@@ -675,3 +675,85 @@ const defaultProductos = [
           formModal.classList.remove('show');
       }
   });
+
+// --- GOOGLE DRIVE BACKUP ---
+let tokenClient;
+
+function initGoogleAuth() {
+    if (!tokenClient && typeof google !== 'undefined') {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: '287885156256-g76u3vdl8eftq2q1jta8n0rvgkl93hnm.apps.googleusercontent.com',
+            scope: 'https://www.googleapis.com/auth/drive.file',
+            callback: async (tokenResponse) => {
+                if (tokenResponse && tokenResponse.access_token) {
+                    await executeBackup(tokenResponse.access_token);
+                }
+            },
+        });
+    }
+}
+
+window.backupToDrive = function() {
+    if (typeof google === 'undefined') {
+        alert("Cargando servicios de Google... Comprueba tu conexión e inténtalo de nuevo.");
+        return;
+    }
+    initGoogleAuth();
+    tokenClient.requestAccessToken();
+};
+
+async function executeBackup(accessToken) {
+    const btn = document.getElementById('backup-btn');
+    const originalIcon = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.disabled = true;
+
+    try {
+        if (!productos || productos.length === 0) throw new Error("No hay productos para exportar.");
+        
+        const headers = Object.keys(productos[0]);
+        let csvContent = "\uFEFF";
+        csvContent += headers.join(',') + "\r\n";
+        
+        productos.forEach(row => {
+            const rowData = headers.map(header => {
+                let val = row[header];
+                if (val === null || val === undefined) val = "";
+                val = String(val).replace(/"/g, '""');
+                if (val.search(/("|,|\n)/g) >= 0) val = `"${val}"`;
+                return val;
+            });
+            csvContent += rowData.join(',') + "\r\n";
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        
+        const appName = "Catalogo_Productos";
+        const dateStr = new Date().toISOString().split('T')[0];
+        const fileName = `Respaldo_${appName}_${dateStr}.csv`;
+        
+        const metadata = { name: fileName, mimeType: 'text/csv' };
+        const form = new FormData();
+        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+        form.append('file', blob);
+
+        const uploadRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + accessToken },
+            body: form
+        });
+        
+        if (!uploadRes.ok) {
+            const errData = await uploadRes.json();
+            throw new Error(errData.error?.message || "Error al subir el archivo a Google Drive");
+        }
+        
+        alert("¡Copia de seguridad realizada con éxito!\n\nEl archivo '" + fileName + "' se ha guardado en tu Google Drive.");
+    } catch (err) {
+        console.error("Error en backup:", err);
+        alert("Error al realizar la copia: " + err.message);
+    } finally {
+        btn.innerHTML = originalIcon;
+        btn.disabled = false;
+    }
+}
