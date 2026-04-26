@@ -227,7 +227,7 @@ main {
 }
 
 /* FAB */
-.fab {
+.fab-btn {
     position: fixed;
     bottom: 30px;
     right: 30px;
@@ -247,7 +247,7 @@ main {
     transition: transform 0.2s, background 0.2s;
 }
 
-.fab:active {
+.fab-btn:active {
     transform: scale(0.9);
     background: var(--accent-hover);
 }
